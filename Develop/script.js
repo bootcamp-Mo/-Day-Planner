@@ -1,52 +1,42 @@
-
 $(document).ready(function () {
 
-
-  // * Date and Time in Header
-    // TODO: Add code to display the current date in the header of the page.
   var today = dayjs();
   var formattedDate = dayjs(today).format('dddd, MMMM D, YYYY h:mm A')
   $("header #currentDay").text("Today's date is " + formattedDate);
 
+  $(".saveBtn").on("click", function () {
+    var timeBlockId = $(this).closest(".time-block").attr("id");
+    var textAreaValue = $(this).siblings(".description").val();
+    localStorage.setItem(timeBlockId, textAreaValue);
+  });
 
-  // * Save button
-    // TODO: Add a listener for click events on the save button. This code should
-  const saveButton = document.querySelector('.saveBtn')
-  const textArea = document.querySelector('textarea')
-  saveButton.addEventListener("click", function () {
-    localStorage.setItem('textArea', textArea )
-    console.log('saved button clicked')
-  })
+  function updateTimeBlocks() {
+    $(".time-block").each(function () {
+      var timeBlockHour = parseInt($(this).attr("id").split("-")[1]);
+      var currentHour = dayjs().hour(); // declare currentHour inside updateTimeBlocks
+  
+      if (timeBlockHour > currentHour) {
+        $(this).addClass("future").removeClass("past present");
+      } else if (timeBlockHour === currentHour) {
+        $(this).addClass("present").removeClass("past future");
+      } else {
+        $(this).addClass("past").removeClass("present future");
+      }
+    });
 
-  // TODO: Add code to apply the past, present, or future class to each tim
-  const timeBlock = document.querySelector('.time-block')
-                  const currentHour = dayjs().format('H');
-                  const timeListID = [ '#hour-9', '#hour-10',  '#hour-11',  '#hour-12',  '#hour-1',  '#hour-4',  '#hour-5'  ]
-console.log(currentHour)
-const hour = currentHour;
-timeListID.forEach( ()=> {
+    $(".time-block").each(function () {
+      var timeBlockId = $(this).attr("id");
+      var savedText = localStorage.getItem(timeBlockId);
+      if (savedText) {
+        $(this).find(".description").val(savedText);
+      }
+    });
 
-                    if (hour < currentHour) {
-                      $(timeBlock ).addClass('past');
-                      console.log("hey")
-                    }
-                    if (hour === currentHour) {
-                      $(timeBlock ).addClass('present');
-                      console.log("hi")
-                    }
-                    if(hour > currentHour) {
-                      $(timeBlock ).addClass('future')
-                      console.log("hello")
-                    }
-});
-                    console.log(hour)
+    setInterval(updateTimeBlocks, 60000);
+  }
 
-
-
-})
-
-
-
+  updateTimeBlocks(); // call updateTimeBlocks once to initialize
+}); 
 
 
 // ! Wrap all code that interacts with the DOM in a call to jQuery to ensure that
